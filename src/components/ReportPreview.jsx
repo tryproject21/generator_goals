@@ -24,15 +24,10 @@ const ReportPreview = forwardRef(({ reportData }, ref) => {
         {/* Visual page break indicator for preview only (ignored by PDF) */}
         <div className="page-separator-overlay" data-html2canvas-ignore="true"></div>
 
-        {/* Header Section */}
-        <div className="pdf-header">
-          <h1 className="pdf-title">LAPORAN KEGIATAN</h1>
-        </div>
-
         {/* Info Section */}
         <div className="pdf-content-section">
           <div className="pdf-row">
-            <div className="pdf-label">Perihal</div>
+            <div className="pdf-label">Nama Kegiatan</div>
             <div className="pdf-value">: {reportData.perihal || '-'}</div>
           </div>
           <div className="pdf-row">

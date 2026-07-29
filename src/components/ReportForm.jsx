@@ -137,7 +137,7 @@ export default function ReportForm({ reportData, setReportData }) {
 
       <div className="form-group">
         <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Type size={16} /> Perihal
+          <Type size={16} /> Nama Kegiatan
         </label>
         <input
           type="text"

@@ -110,7 +110,7 @@ function App() {
 
         {!isFormValid && (
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '12px', textAlign: 'center' }}>
-            * Mohon lengkapi Perihal, Tanggal, dan Lokasi untuk mengunduh PDF.
+            * Mohon lengkapi Nama Kegiatan, Tanggal, dan Lokasi untuk mengunduh PDF.
           </p>
         )}
       </div>
