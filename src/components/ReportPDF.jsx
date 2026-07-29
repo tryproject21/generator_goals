@@ -129,20 +129,16 @@ const ReportPDF = ({ reportData }) => {
 
         {/* Dokumentasi Section */}
         {reportData.dokumentasi && reportData.dokumentasi.length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Dokumentasi Kegiatan</Text>
-            <View style={styles.docGrid}>
-              {reportData.dokumentasi.map((doc, index) => (
-                <View key={index} style={styles.docItem} wrap={false}>
-                  <Image src={doc.src} style={styles.docImage} />
-                  {doc.caption ? (
-                    <Text style={styles.docCaption}>{doc.caption}</Text>
-                  ) : null}
-                </View>
-              ))}
-            </View>
-          </View>
+          <Text style={styles.sectionTitle}>Dokumentasi Kegiatan</Text>
         )}
+        {reportData.dokumentasi && reportData.dokumentasi.map((doc, index) => (
+          <View key={index} style={styles.docItem} wrap={false}>
+            <Image src={doc.src} style={styles.docImage} />
+            {doc.caption ? (
+              <Text style={styles.docCaption}>{doc.caption}</Text>
+            ) : null}
+          </View>
+        ))}
 
         {/* Footer */}
         <View style={styles.footer} fixed>
