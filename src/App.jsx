@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useReactToPrint } from 'react-to-print';
 import { Download, Loader2, Trash2 } from 'lucide-react';
 import ReportForm from './components/ReportForm';
 import ReportPreview from './components/ReportPreview';
@@ -36,32 +35,39 @@ function App() {
   }, [reportData]);
 
   const [isGenerating, setIsGenerating] = useState(false);
-  const reportRef = useRef(null);
+  const reportRef = useRef(null); // still needed for the DOM preview
 
-  // Format filename: "Goals - Tanggal Kegiatan (20260618) - Judul Kegiatan"
-  const formattedDateForFile = reportData.tanggal ? reportData.tanggal.replace(/-/g, '') : '';
-  const safePerihal = reportData.perihal ? reportData.perihal.replace(/[/\\?%*:|"<>]/g, '-') : 'Laporan';
-  const pdfFileName = `Goals - ${formattedDateForFile} - ${safePerihal}.pdf`;
+  const generatePDF = async () => {
+    setIsGenerating(true);
+    
+    try {
+      // Dynamic import to keep bundle size small on initial load
+      const { pdf } = await import('@react-pdf/renderer');
+      const ReportPDF = (await import('./components/ReportPDF')).default;
+      
+      const blob = await pdf(<ReportPDF reportData={reportData} />).toBlob();
+      
+      // Format filename
+      const formattedDateForFile = reportData.tanggal ? reportData.tanggal.replace(/-/g, '') : '';
+      const safePerihal = reportData.perihal ? reportData.perihal.replace(/[/\\?%*:|"<>]/g, '-') : 'Laporan';
+      const pdfFileName = `Goals - ${formattedDateForFile} - ${safePerihal}.pdf`;
 
-  const handlePrint = useReactToPrint({
-    contentRef: reportRef,
-    documentTitle: pdfFileName,
-    onBeforeGetContent: () => {
-      setIsGenerating(true);
-      return Promise.resolve();
-    },
-    onAfterPrint: () => setIsGenerating(false),
-    onPrintError: (error) => {
-      console.error('Print error:', error);
+      // Trigger download
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = pdfFileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Gagal membuat PDF:", error);
+      alert("Terjadi kesalahan saat menghasilkan PDF.");
+    } finally {
       setIsGenerating(false);
     }
-  });
-
-  const generatePDF = () => {
-    if (!reportRef.current) return;
-    handlePrint();
   };
-
 
   const handleReset = () => {
     if (window.confirm("Apakah Anda yakin ingin mereset formulir? Semua data yang belum diunduh akan hilang.")) {
