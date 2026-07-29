@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
   },
   docImage: {
     maxWidth: '100%',
-    maxHeight: 500,
+    maxHeight: 300,
     objectFit: 'contain',
     borderWidth: 1,
     borderColor: '#ddd',
