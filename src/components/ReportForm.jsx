@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { UploadCloud, X, Calendar, Type, BookOpen, MapPin } from 'lucide-react';
 import { compressImage } from '../utils/imageCompressor';
 
@@ -21,7 +21,7 @@ export default function ReportForm({ reportData, setReportData }) {
     setIsDraggingFile(false);
   };
 
-  const processFiles = async (files) => {
+  const processFiles = useCallback(async (files) => {
     const newImages = [];
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
@@ -44,7 +44,32 @@ export default function ReportForm({ reportData, setReportData }) {
         dokumentasi: [...prev.dokumentasi, ...newImages]
       }));
     }
-  };
+  }, [setReportData]);
+
+  useEffect(() => {
+    const handleGlobalPaste = (e) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+
+      const imageFiles = [];
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf('image') !== -1) {
+          imageFiles.push(items[i].getAsFile());
+        }
+      }
+
+      if (imageFiles.length > 0) {
+        // Prevent default to avoid pasting image path as text in inputs
+        if (e.target.tagName !== 'TEXTAREA' && e.target.tagName !== 'INPUT') {
+           e.preventDefault();
+        }
+        processFiles(imageFiles);
+      }
+    };
+
+    window.addEventListener('paste', handleGlobalPaste);
+    return () => window.removeEventListener('paste', handleGlobalPaste);
+  }, [processFiles]);
 
   const handleDropFile = useCallback((e) => {
     e.preventDefault();
@@ -166,12 +191,12 @@ export default function ReportForm({ reportData, setReportData }) {
 
       <div className="form-group">
         <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <BookOpen size={16} /> Notulensi (Opsional)
+          <BookOpen size={16} /> Keterangan (Opsional)
         </label>
         <textarea
           name="notulensi"
           className="form-textarea"
-          placeholder="Tuliskan catatan atau hasil rapat kegiatan di sini..."
+          placeholder="Tuliskan keterangan tambahan di sini..."
           value={reportData.notulensi}
           onChange={handleInputChange}
         />
@@ -190,7 +215,7 @@ export default function ReportForm({ reportData, setReportData }) {
             Tarik & Lepas foto ke sini
           </p>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-            atau klik untuk memilih file (Bisa lebih dari 1)
+            atau klik untuk memilih file (Bisa juga tekan Ctrl+V/Paste langsung)
           </p>
           <input
             type="file"

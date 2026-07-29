@@ -45,12 +45,14 @@ const ReportPreview = forwardRef(({ reportData }, ref) => {
           </div>
         </div>
 
-        {/* Notulensi Section */}
+        {/* Notulensi/Keterangan Section */}
         {reportData.notulensi && (
-          <div className="pdf-content-section" style={{ pageBreakInside: 'avoid' }}>
-            <h2 className="pdf-section-title">Notulensi</h2>
-            <div className="pdf-value" style={{ textAlign: 'justify' }}>
-              {reportData.notulensi}
+          <div className="pdf-content-section" style={{ borderBottom: 'none' }}>
+            <h3 className="pdf-section-title">Keterangan</h3>
+            <div className="pdf-notulensi">
+              {reportData.notulensi.split('\n').map((line, i) => (
+                <p key={i}>{line}</p>
+              ))}
             </div>
           </div>
         )}
@@ -58,16 +60,22 @@ const ReportPreview = forwardRef(({ reportData }, ref) => {
         {/* Dokumentasi Section */}
         {reportData.dokumentasi.length > 0 && (
           <div className="pdf-content-section">
-            <h2 className="pdf-section-title" style={{ marginTop: '20px' }}>Dokumentasi Kegiatan</h2>
             <div className="pdf-doc-grid">
               {reportData.dokumentasi.map((doc, index) => (
-                <div key={doc.id || index} className="pdf-doc-item">
-                  <img src={doc.src || doc} alt={`Dokumentasi ${index + 1}`} />
-                  {doc.caption && (
-                    <div className="pdf-doc-caption">
-                      {doc.caption}
-                    </div>
+                <div key={doc.id || index} className="pdf-doc-item" style={{ alignItems: 'flex-start' }}>
+                  {index === 0 && (
+                    <h2 className="pdf-section-title" style={{ width: '100%', marginTop: '20px' }}>
+                      Dokumentasi Kegiatan
+                    </h2>
                   )}
+                  <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <img src={doc.src || doc} alt={`Dokumentasi ${index + 1}`} />
+                    {doc.caption && (
+                      <div className="pdf-doc-caption">
+                        {doc.caption}
+                      </div>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>

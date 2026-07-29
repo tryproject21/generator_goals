@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import html2pdf from 'html2pdf.js';
+import { useReactToPrint } from 'react-to-print';
 import { Download, Loader2, Trash2 } from 'lucide-react';
 import ReportForm from './components/ReportForm';
 import ReportPreview from './components/ReportPreview';
@@ -38,54 +38,30 @@ function App() {
   const [isGenerating, setIsGenerating] = useState(false);
   const reportRef = useRef(null);
 
-  const generatePDF = async () => {
-    if (!reportRef.current) return;
-    setIsGenerating(true);
+  // Format filename: "Goals - Tanggal Kegiatan (20260618) - Judul Kegiatan"
+  const formattedDateForFile = reportData.tanggal ? reportData.tanggal.replace(/-/g, '') : '';
+  const safePerihal = reportData.perihal ? reportData.perihal.replace(/[/\\?%*:|"<>]/g, '-') : 'Laporan';
+  const pdfFileName = `Goals - ${formattedDateForFile} - ${safePerihal}.pdf`;
 
-    const element = reportRef.current;
-    
-    // Configure html2pdf options
-    const opt = {
-      margin:       20, // Margin in mm (matches exactly with --a4-padding in CSS)
-      filename:     `Laporan_Kegiatan_${reportData.tanggal || 'Untitled'}.pdf`,
-      image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  { 
-        scale: 2, // Higher scale for better resolution
-        useCORS: true,
-        letterRendering: true 
-      },
-      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-      pagebreak:    { mode: ['css', 'legacy'] }
-    };
-
-    try {
-      await html2pdf()
-        .set(opt)
-        .from(element)
-        .toPdf()
-        .get('pdf')
-        .then((pdf) => {
-          const totalPages = pdf.internal.getNumberOfPages();
-          for (let i = 1; i <= totalPages; i++) {
-            pdf.setPage(i);
-            pdf.setFontSize(10);
-            pdf.setTextColor(120);
-            pdf.text(
-              `Halaman ${i} dari ${totalPages}`,
-              pdf.internal.pageSize.getWidth() - 20,
-              pdf.internal.pageSize.getHeight() - 10,
-              { align: 'right' }
-            );
-          }
-        })
-        .save();
-    } catch (error) {
-      console.error("Failed to generate PDF:", error);
-      alert("Terjadi kesalahan saat menghasilkan PDF.");
-    } finally {
+  const handlePrint = useReactToPrint({
+    contentRef: reportRef,
+    documentTitle: pdfFileName,
+    onBeforeGetContent: () => {
+      setIsGenerating(true);
+      return Promise.resolve();
+    },
+    onAfterPrint: () => setIsGenerating(false),
+    onPrintError: (error) => {
+      console.error('Print error:', error);
       setIsGenerating(false);
     }
+  });
+
+  const generatePDF = () => {
+    if (!reportRef.current) return;
+    handlePrint();
   };
+
 
   const handleReset = () => {
     if (window.confirm("Apakah Anda yakin ingin mereset formulir? Semua data yang belum diunduh akan hilang.")) {
